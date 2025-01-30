@@ -84,26 +84,6 @@ async function processGeolocationPermission(): Promise<boolean> {
   });
 }
 
-//   NOTE:tryParseJSONObject is from WADCW2-JJB22189
-//    https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string
-function tryParseJSONObject(jsonString: string) {
-  try {
-    var o = JSON.parse(jsonString);
-
-    // Handle non-exception-throwing cases:
-    // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-    // but... JSON.parse(null) returns null, and typeof null === "object",
-    // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-    if (o && typeof o === "object") {
-      return o;
-    }
-  } catch (e) {
-    console.log("Response recieved not JSON, got: " + jsonString);
-  }
-
-  return false;
-}
-
 function generatePositionString(position: GeolocationPosition): string {
   return `lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
 }

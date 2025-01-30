@@ -8,10 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+let speedDOM;
 function handleGPSInfo(position) {
     // Handle GPS location updates here
-    console.log("handleGPSInfo called");
-    position.coords.speed;
+    console.log(`handleGPSInfo called ${position.coords.speed}`);
+    let speed = Math.round(position.coords.speed);
+    speedDOM.textContent = speed.toString();
 }
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
 function processGeolocationPermission() {
@@ -54,6 +56,7 @@ function processGeolocationPermission() {
 function init() {
     // Do any initialisation here
     // if location allowed
+    speedDOM = document.getElementById("speed");
     processGeolocationPermission().then(() => {
         // attach listener
         console.log("Got permissions!");

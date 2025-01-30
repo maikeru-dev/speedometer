@@ -1,9 +1,13 @@
 "use strict";
 
+let speedDOM: Element;
+
 function handleGPSInfo(position: GeolocationPosition) {
   // Handle GPS location updates here
-  console.log("handleGPSInfo called");
-  position.coords.speed;
+  console.log(`handleGPSInfo called ${position.coords.speed}`);
+
+  let speed = Math.round(position.coords.speed);
+  speedDOM.textContent = speed.toString();
 }
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
 async function processGeolocationPermission(): Promise<boolean> {
@@ -47,6 +51,7 @@ async function processGeolocationPermission(): Promise<boolean> {
 function init(): void {
   // Do any initialisation here
   // if location allowed
+  speedDOM = document.getElementById("speed");
   processGeolocationPermission().then(
     () => {
       // attach listener

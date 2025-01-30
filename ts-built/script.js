@@ -8,12 +8,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-let speedDOM;
+const SPEEDLIMIT_API_URL = "https://devweb2024.cis.strath.ac.uk/aes02112-nodejs/speed";
+let speedDOM; // Can't const declare without init :(
+let streetDOM;
 function handleGPSInfo(position) {
     // Handle GPS location updates here
     console.log(`handleGPSInfo called ${position.coords.speed}`);
     let speed = Math.round(position.coords.speed);
+    let streetPosition;
     speedDOM.textContent = speed.toString();
+    fetchSpeedLimitAPI(position)
+        .then((resp) => {
+        resp.json().then((json) => {
+            streetPosition = json;
+            console.log(json);
+            streetDOM.textContent = streetPosition.name;
+        }, (error) => {
+            //  FIXME: Improve error handling
+            console.log("Something went wrong downloading this", error);
+        });
+    })
+        .catch((error) => {
+        console.log("Something went wrong downloading this", error);
+    });
 }
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
 function processGeolocationPermission() {
@@ -53,15 +70,43 @@ function processGeolocationPermission() {
         });
     });
 }
+//   NOTE:tryParseJSONObject is from WADCW2-JJB22189
+//    https://stackoverflow.com/questions/3710204/how-to-check-if-a-string-is-a-valid-json-string
+function tryParseJSONObject(jsonString) {
+    try {
+        var o = JSON.parse(jsonString);
+        // Handle non-exception-throwing cases:
+        // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+        // but... JSON.parse(null) returns null, and typeof null === "object",
+        // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+        if (o && typeof o === "object") {
+            return o;
+        }
+    }
+    catch (e) {
+        console.log("Response recieved not JSON, got: " + jsonString);
+    }
+    return false;
+}
+function generatePositionString(position) {
+    return `lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
+}
+function fetchSpeedLimitAPI(position) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return fetch(SPEEDLIMIT_API_URL + "?" + generatePositionString(position), {
+            mode: "cors",
+        });
+    });
+}
 function init() {
     // Do any initialisation here
-    // if location allowed
     speedDOM = document.getElementById("speed");
+    streetDOM = document.getElementById("street");
     processGeolocationPermission().then(() => {
         // attach listener
         console.log("Got permissions!");
-        navigator.geolocation.getCurrentPosition(handleGPSInfo, () => {
-            console.log("Permission granted, but error on get!");
+        navigator.geolocation.getCurrentPosition(handleGPSInfo, (error) => {
+            console.log("Permission granted, but error on get! ", error);
         });
     }, () => {
         console.log("Failed to get permissions!");

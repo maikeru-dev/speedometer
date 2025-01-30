@@ -1,0 +1,30 @@
+{
+  "name": "Speedometer",
+  "short_name": "Speedo",
+  "icons": [
+    {
+      "src": "images/512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    },
+    {
+      "src": "images/128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "images/64.png",
+      "type": "image/png",
+      "sizes": "64x64"
+    },
+    {
+      "src": "images/32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    }
+  ],
+  "description": "a App for displaying speed using geolocation",
+  "start_url": "/~jjb22189/mad-cw1-jjb22189/",
+  "display": "standalone",
+  "prefer_related_applications": false
+}

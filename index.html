@@ -4,16 +4,29 @@
     <meta charset="UTF-8" />
     <title>MAD1 Speedometer</title>
     <script src="./ts-built/script.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/fontawesome.min.css"
+    />
+    <link rel="stylesheet" href="src/main-page.css" />
   </head>
-  <body>
-    <header>
-      <p>MAD1 Speedometer</p>
+  <body class="root">
+    <header class="container top-heading orbitron-high">
+      <p id="header">Speedometer</p>
     </header>
-    <main>
-      <p id="speed">--</p>
-      <p id="unit">MPH</p>
-      <p id="street">--</p>
+    <main class="container col">
+      <p class="row orbitron-high" id="speed">--</p>
+      <p class="row orbitron-low" id="unit">MPH</p>
+      <p class="row orbitron-low" id="street">--</p>
     </main>
-    <footer>Author Notice</footer>
+    <div class="container footer">
+      <footer class="orbitron-low">MAD-CW1 Michael S.</footer>
+    </div>
   </body>
 </html>

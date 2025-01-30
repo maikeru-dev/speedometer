@@ -1,0 +1,65 @@
+.root {
+  background-color: rgba(0, 0, 0, 255);
+  color: rgba(255, 255, 255, 255);
+  font-family: monospace;
+}
+
+.orbitron-low {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.orbitron-high {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.row {
+  margin: 0 0 0 0;
+}
+
+.col {
+  flex-direction: column;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+  margin: 0 auto auto 0;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 2vh 0;
+}
+
+.top-heading {
+  font-size: 4vh;
+  margin: 0 0 0 0;
+}
+
+#speed {
+  font-size: 20vh;
+}
+#unit {
+  font-size: 10vh;
+}
+#street {
+  font-size: 10vh;
+}
+
+#header {
+  margin: 2vw 0 1vw 0;
+}

@@ -4,3 +4,6 @@
   Currently, the user is not informed about the permissions.
   After they've been prompted, the user may choose to decline.
   This isn't ideal, since we need geolocation permissions to work.
+
+- Improve CSS rules for handling horizontal rotation in mobile devices
+  Use media queries for this.

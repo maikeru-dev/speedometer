@@ -7,3 +7,8 @@
 
 - Improve CSS rules for handling horizontal rotation in mobile devices
   Use media queries for this.
+
+- Improve icons for mobile
+  Currently there is a bunch of icons which do not center nicely on at least iOS
+  I need to edit these using GIMP to make them a bit more centered.
+  Also, Android is untested. (Android Studio?)

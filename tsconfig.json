@@ -5,6 +5,7 @@
     "module": "commonjs",
     "target": "ES6",
     "outDir": "ts-built",
-    "rootDir": "src"
+    "rootDir": "src",
+    "strict": true
   }
 }

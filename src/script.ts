@@ -105,7 +105,7 @@ function init(): void {
     () => {
       // attach listener
       console.log("Got permissions!");
-      navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.watchPosition(
         handleGPSInfo,
         (error: GeolocationPositionError) => {
           console.log("Permission granted, but error on get! ", error);

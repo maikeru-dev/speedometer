@@ -1,0 +1,27 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+      <!-- Red circle -->
+      <circle
+        cx="100"
+        cy="100"
+        r="90"
+        fill="red"
+        stroke="black"
+        stroke-width="3"
+      />
+
+      <!-- White inner circle -->
+      <circle cx="100" cy="100" r="80" fill="white" />
+
+      <!-- STOP text -->
+      <text
+        x="50%"
+        y="52%"
+        dominant-baseline="middle"
+        text-anchor="middle"
+        font-size="64"
+        font-weight="bold"
+        fill="black"
+      >
+        30
+  </text>
+</svg>

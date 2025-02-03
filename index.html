@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MAD1 Speedometer</title>
     <script src="./ts-built/script.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,12 +22,71 @@
   <body class="root">
     <header class="container top-heading orbitron-high">
       <p id="header">Speedometer</p>
+      <div id="spacer"></div>
+      <img
+        id="closeBurger"
+        onclick="closeSettings()"
+        class="hamburger"
+        src="./images/close.png"
+      />
+      <img
+        id="openHamburger"
+        class="hamburger"
+        onclick="openSettings()"
+        src="./images/hamburger.png"
+      />
     </header>
-    <main class="container col">
-      <p class="row orbitron-high" id="speed">--</p>
-      <p class="row orbitron-low" id="unit">MPH</p>
-      <p class="row orbitron-low" id="street">--</p>
-    </main>
+
+    <div id="mainPage" class="main-page">
+      <main class="container col">
+        <p class="row orbitron-high" id="speed">--</p>
+        <p class="row orbitron-low" id="unit">MPH</p>
+        <p class="row orbitron-low" id="street">--</p>
+      </main>
+
+      <svg
+        id="speedLimitSign"
+        width="200"
+        height="200"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <!-- Red circle -->
+        <circle
+          cx="100"
+          cy="100"
+          r="90"
+          fill="red"
+          stroke="black"
+          stroke-width="3"
+        />
+
+        <!-- White inner circle -->
+        <circle cx="100" cy="100" r="80" fill="white" />
+
+        <!-- Speedlimit text -->
+        <text
+          x="50%"
+          y="52%"
+          dominant-baseline="middle"
+          text-anchor="middle"
+          font-size="64"
+          font-weight="bold"
+          fill="black"
+          id="speedLimitText"
+        >
+          000
+        </text>
+      </svg>
+    </div>
+    <div id="settings" class="container settings">
+      <ul class="setting-list">
+        <li class="settings-item">Item</li>
+        <li class="settings-item">Item</li>
+        <li class="settings-item">Item</li>
+        <li class="settings-item">Item</li>
+        <li class="settings-item">Item</li>
+      </ul>
+    </div>
     <div class="container footer">
       <footer class="orbitron-low">MAD-CW1 Michael S.</footer>
     </div>

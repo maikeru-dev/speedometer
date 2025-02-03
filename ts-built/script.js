@@ -8,9 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+require("settings");
 const SPEEDLIMIT_API_URL = "https://devweb2024.cis.strath.ac.uk/aes02112-nodejs/speed";
 let speedDOM; // Can't const declare without init :(
 let streetDOM;
+let speedLimitTextDOM;
+let speedLimitSignDOM;
 function handleGPSInfo(position) {
     // Handle GPS location updates here
     console.log(`handleGPSInfo called ${position.coords.speed}`);
@@ -22,7 +26,7 @@ function handleGPSInfo(position) {
         resp.json().then((json) => {
             streetPosition = json;
             console.log(json);
-            streetDOM.textContent = streetPosition.name;
+            updateStreetInformation(streetPosition);
         }, (error) => {
             //  FIXME: Improve error handling
             console.log("Something went wrong downloading this", error);
@@ -31,6 +35,19 @@ function handleGPSInfo(position) {
         .catch((error) => {
         console.log("Something went wrong downloading this", error);
     });
+}
+function updateStreetInformation(streetInfo) {
+    console.log("Street info: ", streetInfo);
+    if (streetInfo.status != "OK") {
+        // ATM, do nothing
+        // speedLimitSign.style.opacity = "0";
+        console.log("Street information is empty.");
+        return;
+    }
+    streetDOM.textContent = streetInfo.name;
+    speedLimitSignDOM.style.opacity = "100";
+    //  FIXME: This needs to respect settings, this should change based on whether the user wants it to.
+    speedLimitTextDOM.textContent = streetInfo.localSpeedLimit.toString();
 }
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
 function processGeolocationPermission() {
@@ -84,11 +101,17 @@ function init() {
     // Do any initialisation here
     speedDOM = document.getElementById("speed");
     streetDOM = document.getElementById("street");
+    speedLimitSignDOM = document.getElementById("speedLimitSign");
+    speedLimitTextDOM = document.getElementById("speedLimitText");
     processGeolocationPermission().then(() => {
         // attach listener
         console.log("Got permissions!");
-        navigator.geolocation.getCurrentPosition(handleGPSInfo, (error) => {
+        navigator.geolocation.watchPosition(handleGPSInfo, (error) => {
             console.log("Permission granted, but error on get! ", error);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
         });
     }, () => {
         console.log("Failed to get permissions!");

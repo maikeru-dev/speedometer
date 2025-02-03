@@ -1,9 +1,13 @@
 "use strict";
 
+import "settings";
+
 const SPEEDLIMIT_API_URL =
   "https://devweb2024.cis.strath.ac.uk/aes02112-nodejs/speed";
 let speedDOM: HTMLElement; // Can't const declare without init :(
 let streetDOM: HTMLElement;
+let speedLimitTextDOM: HTMLElement;
+let speedLimitSignDOM: HTMLElement;
 
 interface StreetPosition {
   copyright: string;
@@ -32,7 +36,7 @@ function handleGPSInfo(position: GeolocationPosition): void {
         (json) => {
           streetPosition = json as StreetPosition;
           console.log(json);
-          streetDOM.textContent = streetPosition.name;
+          updateStreetInformation(streetPosition);
         },
         (error) => {
           //  FIXME: Improve error handling
@@ -43,6 +47,20 @@ function handleGPSInfo(position: GeolocationPosition): void {
     .catch((error) => {
       console.log("Something went wrong downloading this", error);
     });
+}
+
+function updateStreetInformation(streetInfo: StreetPosition): void {
+  console.log("Street info: ", streetInfo);
+  if (streetInfo.status != "OK") {
+    // ATM, do nothing
+    // speedLimitSign.style.opacity = "0";
+    console.log("Street information is empty.");
+    return;
+  }
+  streetDOM.textContent = streetInfo.name;
+  speedLimitSignDOM.style.opacity = "100";
+  //  FIXME: This needs to respect settings, this should change based on whether the user wants it to.
+  speedLimitTextDOM.textContent = streetInfo.localSpeedLimit.toString();
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
@@ -100,6 +118,8 @@ function init(): void {
   // Do any initialisation here
   speedDOM = document.getElementById("speed")!;
   streetDOM = document.getElementById("street")!;
+  speedLimitSignDOM = document.getElementById("speedLimitSign")!;
+  speedLimitTextDOM = document.getElementById("speedLimitText")!;
 
   processGeolocationPermission().then(
     () => {
@@ -109,6 +129,11 @@ function init(): void {
         handleGPSInfo,
         (error: GeolocationPositionError) => {
           console.log("Permission granted, but error on get! ", error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
         },
       );
     },

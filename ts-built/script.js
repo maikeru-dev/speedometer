@@ -11,10 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const SPEEDLIMIT_API_URL = "https://devweb2024.cis.strath.ac.uk/aes02112-nodejs/speed";
 let speedDOM; // Can't const declare without init :(
 let streetDOM;
-let speedLimitTextDOM;
-let speedLimitSignDOM;
 let closeBurgerDOM;
 let hamburgerDOM;
+let speedLimitTextDOM;
+let speedLimitSignDOM;
 let mainPageDOM;
 let settingsDOM;
 function handleGPSInfo(position) {
@@ -37,6 +37,33 @@ function handleGPSInfo(position) {
         .catch((error) => {
         console.log("Something went wrong downloading this", error);
     });
+}
+function openSettings() {
+    hamburgerDOM.style.display = "none";
+    closeBurgerDOM.style.display = "block";
+    mainPageDOM.style.display = "none";
+    settingsDOM.style.display = "flex";
+}
+function closeSettings() {
+    hamburgerDOM.style.display = "block";
+    closeBurgerDOM.style.display = "none";
+    mainPageDOM.style.display = "block";
+    settingsDOM.style.display = "none";
+}
+function isSettingsVisible() {
+    if (!(hamburgerDOM && closeBurgerDOM)) {
+        return null;
+    }
+    let hamburgerStyle = hamburgerDOM.style.display;
+    let closeBurgerStyle = closeBurgerDOM.style.display;
+    if (hamburgerStyle != "none" && closeBurgerStyle == "none") {
+        return false;
+    }
+    if (hamburgerStyle == "none" && closeBurgerStyle != "none") {
+        return true;
+    }
+    console.error("Found possibly hamburgerStyle == closeBurgerStyle");
+    return null; // Something weird happened.
 }
 function updateStreetInformation(streetInfo) {
     console.log("Street info: ", streetInfo);
@@ -110,6 +137,7 @@ function init() {
     settingsDOM = document.getElementById("settings");
     mainPageDOM = document.getElementById("mainPage");
     if (window.screen.width <= 600) {
+        // Mobile only
         openSettings();
     }
     processGeolocationPermission().then(() => {
@@ -125,32 +153,5 @@ function init() {
     }, () => {
         console.log("Failed to get permissions!");
     });
-}
-function openSettings() {
-    hamburgerDOM.style.display = "none";
-    closeBurgerDOM.style.display = "block";
-    mainPageDOM.style.display = "none";
-    settingsDOM.style.display = "flex";
-}
-function closeSettings() {
-    hamburgerDOM.style.display = "block";
-    closeBurgerDOM.style.display = "none";
-    mainPageDOM.style.display = "block";
-    settingsDOM.style.display = "none";
-}
-function isSettingsVisible() {
-    if (!(hamburgerDOM && closeBurgerDOM)) {
-        return null;
-    }
-    let hamburgerStyle = hamburgerDOM.style.display;
-    let closeBurgerStyle = closeBurgerDOM.style.display;
-    if (hamburgerStyle != "none" && closeBurgerStyle == "none") {
-        return false;
-    }
-    if (hamburgerStyle == "none" && closeBurgerStyle != "none") {
-        return true;
-    }
-    console.error("Found possibly hamburgerStyle == closeBurgerStyle");
-    return null; // Something weird happened.
 }
 document.addEventListener("DOMContentLoaded", init);

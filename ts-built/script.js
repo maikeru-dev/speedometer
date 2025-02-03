@@ -8,13 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-require("settings");
 const SPEEDLIMIT_API_URL = "https://devweb2024.cis.strath.ac.uk/aes02112-nodejs/speed";
 let speedDOM; // Can't const declare without init :(
 let streetDOM;
 let speedLimitTextDOM;
 let speedLimitSignDOM;
+let closeBurgerDOM;
+let hamburgerDOM;
+let mainPageDOM;
+let settingsDOM;
 function handleGPSInfo(position) {
     // Handle GPS location updates here
     console.log(`handleGPSInfo called ${position.coords.speed}`);
@@ -103,6 +105,13 @@ function init() {
     streetDOM = document.getElementById("street");
     speedLimitSignDOM = document.getElementById("speedLimitSign");
     speedLimitTextDOM = document.getElementById("speedLimitText");
+    closeBurgerDOM = document.getElementById("closeBurger");
+    hamburgerDOM = document.getElementById("openHamburger");
+    settingsDOM = document.getElementById("settings");
+    mainPageDOM = document.getElementById("mainPage");
+    if (window.screen.width <= 600) {
+        openSettings();
+    }
     processGeolocationPermission().then(() => {
         // attach listener
         console.log("Got permissions!");
@@ -116,5 +125,32 @@ function init() {
     }, () => {
         console.log("Failed to get permissions!");
     });
+}
+function openSettings() {
+    hamburgerDOM.style.display = "none";
+    closeBurgerDOM.style.display = "block";
+    mainPageDOM.style.display = "none";
+    settingsDOM.style.display = "flex";
+}
+function closeSettings() {
+    hamburgerDOM.style.display = "block";
+    closeBurgerDOM.style.display = "none";
+    mainPageDOM.style.display = "block";
+    settingsDOM.style.display = "none";
+}
+function isSettingsVisible() {
+    if (!(hamburgerDOM && closeBurgerDOM)) {
+        return null;
+    }
+    let hamburgerStyle = hamburgerDOM.style.display;
+    let closeBurgerStyle = closeBurgerDOM.style.display;
+    if (hamburgerStyle != "none" && closeBurgerStyle == "none") {
+        return false;
+    }
+    if (hamburgerStyle == "none" && closeBurgerStyle != "none") {
+        return true;
+    }
+    console.error("Found possibly hamburgerStyle == closeBurgerStyle");
+    return null; // Something weird happened.
 }
 document.addEventListener("DOMContentLoaded", init);

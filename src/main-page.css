@@ -89,6 +89,13 @@
   margin: 2vw 0 1vw 0;
 }
 
+#openHamburger {
+  display: block;
+}
+#closeBurger {
+  display: none;
+}
+
 @media screen and (max-width: 600px) {
   #header {
     display: none;

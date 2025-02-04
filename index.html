@@ -160,7 +160,13 @@
         </li>
         <li class="container col settings-item">
           <p class="setting-desc">Set the background to an image</p>
-          <input id="fileUpload" type="file" name="bgImage" />
+          <input
+            class="custom-buttons"
+            id="fileUpload"
+            type="file"
+            name="bgImage"
+          />
+          <button class="custom-buttons" onclick="clearBGImage()">Clear</button>
         </li>
         <li class="container col settings-item">
           <div class="row">
@@ -187,6 +193,9 @@
             />
           </div>
         </li>
+        <div class="container custom-buttons">
+          <button onclick="resetSettings()">Reset settings</button>
+        </div>
       </ul>
     </div>
     <div class="container footer">

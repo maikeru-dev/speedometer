@@ -169,8 +169,8 @@ function writeSettings(settings: Settings): void {
     settings.unitColour;
 
   if (settings.bgImage) {
-    (document.getElementById("fileUpload") as HTMLInputElement).value =
-      window.atob(settings.bgImage);
+    //(document.getElementById("fileUpload") as HTMLInputElement).files = new FileList.new(); localStorage.getItem(settings.bgImage)!;
+    //window.atob(settings.bgImage); forget this
   }
 }
 
@@ -206,6 +206,19 @@ function closeSettings(): void {
 
   mainPageDOM.style.display = "block";
   settingsDOM.style.display = "none";
+}
+
+function resetSettings() {
+  currentSettings = fastClone(defaultSettings);
+  localStorage.clear();
+  applySettings(currentSettings);
+}
+
+function clearBGImage() {
+  localStorage.removeItem("bgImage");
+  document.body.style.backgroundImage = "";
+  (document.getElementById("fileUpload") as HTMLInputElement).value = "";
+  currentSettings.bgImage = null;
 }
 
 // Pure styling, functional aspects found where they are needed.
@@ -348,9 +361,9 @@ function init(): void {
   settingsDOM = document.getElementById("settings")!;
   mainPageDOM = document.getElementById("mainPage")!;
 
-  saveSettings(currentSettings);
   if (isSettingsCustom()) {
     applySettings(currentSettings);
+    writeSettings(currentSettings);
   }
 
   if (window.screen.width <= 600) {

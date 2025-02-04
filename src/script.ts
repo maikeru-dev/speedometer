@@ -12,6 +12,7 @@ let speedLimitSignDOM: HTMLElement;
 let mainPageDOM: HTMLElement;
 let settingsDOM: HTMLElement;
 let lastKnownLocalUnit: string = "--";
+let blinkList: Array<HTMLElement> = [];
 
 interface Settings {
   units: string;
@@ -47,52 +48,29 @@ interface StreetPosition {
   lon: string;
   cached: boolean;
 }
-
-function handleGPSInfo(position: GeolocationPosition): void {
-  // Handle GPS location updates here
-  console.log(`handleGPSInfo called ${position.coords.speed}`);
-
-  let speed: number = position.coords.speed!; // null check is present below
-  let streetPosition: StreetPosition;
-
-  fetchSpeedLimitAPI(position)
-    .then((resp) => {
-      resp.json().then(
-        (json) => {
-          streetPosition = json as StreetPosition;
-          console.log(json);
-          updateStreetInformation(streetPosition);
-        },
-        (error) => {
-          //  FIXME: Improve error handling
-          console.log("Something went wrong downloading this", error);
-        },
-      );
-    })
-    .catch((error) => {
-      console.log("Something went wrong downloading this", error);
-    });
-
-  if (speed == null) {
-    // Blink animation
-    speedDOM.textContent = "--";
-  } else {
-    // respect settings
-    switch (currentSettings.units) {
-      case "setting_KMH":
-        speedDOM.textContent = Math.round(speed * 3.6).toString();
-        break;
-      case "setting_MPH":
-        speedDOM.textContent = Math.round(speed * 2.23694).toString();
-        break;
-      case "setting_LOC":
-        // Blink last known unit
-        // When found, it will unblink
-        break;
-    }
-  }
+function blink() {
+  // This is a synchronized blink animation
+  const timeout = 1000;
+  setInterval(() => {
+    setTimeout(() => {
+      blinkList.forEach((element) => {
+        element.style.visibility = "hidden";
+      });
+    }, timeout / 2);
+    setTimeout(() => {
+      blinkList.forEach((element) => {
+        element.style.visibility = "visible";
+      });
+    }, timeout);
+  }, timeout);
+  return;
 }
-
+function registerBlink(key: HTMLElement) {
+  blinkList.push(key);
+}
+function unregisterBlink(key: HTMLElement) {
+  blinkList.splice(blinkList.indexOf(key), 1);
+}
 function isSettingsCustom(): boolean {
   return localStorage.getItem("customSettings") != null;
 }
@@ -187,7 +165,13 @@ function openSettings(): void {
 
   // Update styles
   hamburgerDOM.style.display = "none";
+  hamburgerDOM.style.pointerEvents = "none";
   closeBurgerDOM.style.display = "block";
+
+  setTimeout(() => {
+    // This is a subtle fix for buttons positioned on top of each other.
+    closeBurgerDOM.style.pointerEvents = "auto";
+  }, 20);
 
   mainPageDOM.style.display = "none";
   settingsDOM.style.display = "flex";
@@ -200,8 +184,13 @@ function closeSettings(): void {
     applySettings(currentSettings);
   }
 
-  hamburgerDOM.style.display = "block";
   closeBurgerDOM.style.display = "none";
+  closeBurgerDOM.style.pointerEvents = "none";
+  hamburgerDOM.style.display = "block";
+  setTimeout(() => {
+    // This is a subtle fix for buttons positioned on top of each other.
+    hamburgerDOM.style.pointerEvents = "auto";
+  }, 20);
 
   mainPageDOM.style.display = "block";
   settingsDOM.style.display = "none";
@@ -239,7 +228,10 @@ function applySettings(settings: Settings): void {
     case "setting_LOC":
       // Blink last known unit
       // When found, it will unblink
-      unitDOM.textContent = lastKnownLocalUnit;
+      if (lastKnownLocalUnit == "--") {
+        unitDOM.textContent = lastKnownLocalUnit;
+        registerBlink(unitDOM);
+      }
       break;
   }
 
@@ -285,6 +277,51 @@ function isSettingsVisible(): boolean | null {
   return null; // Something weird happened.
 }
 
+function handleGPSInfo(position: GeolocationPosition): void {
+  // Handle GPS location updates here
+  console.log(`handleGPSInfo called ${position.coords.speed}`);
+
+  let speed: number = position.coords.speed!; // null check is present below
+  let streetPosition: StreetPosition;
+
+  fetchSpeedLimitAPI(position)
+    .then((resp) => {
+      resp.json().then(
+        (json) => {
+          streetPosition = json as StreetPosition;
+          console.log(json);
+          updateStreetInformation(streetPosition);
+        },
+        (error) => {
+          //  FIXME: Improve error handling
+          console.log("Something went wrong downloading this", error);
+        },
+      );
+    })
+    .catch((error) => {
+      console.log("Something went wrong downloading this", error);
+    });
+
+  if (speed == null) {
+    // Blink animation
+    speedDOM.textContent = "--";
+    registerBlink(speedDOM);
+  } else {
+    unregisterBlink(speedDOM);
+    // respect settings
+    switch (currentSettings.units) {
+      case "setting_KMH":
+        speedDOM.textContent = Math.round(speed * 3.6).toString();
+        break;
+      case "setting_MPH":
+        speedDOM.textContent = Math.round(speed * 2.23694).toString();
+        break;
+      case "setting_LOC":
+        // This case is handled by updateStreetInformation();
+        break;
+    }
+  }
+}
 function updateStreetInformation(streetInfo: StreetPosition): void {
   console.log("Street info: ", streetInfo);
   if (streetInfo.status != "OK") {
@@ -293,6 +330,11 @@ function updateStreetInformation(streetInfo: StreetPosition): void {
     console.log("Street information is empty.");
     return;
   }
+
+  unitDOM.textContent = streetInfo.localSpeedLimit.toString();
+  speedDOM.textContent = streetInfo.siSpeed.toString();
+  unregisterBlink(unitDOM);
+
   streetDOM.textContent = streetInfo.name;
   speedLimitSignDOM.style.opacity = "100";
   //  FIXME: This needs to respect settings, this should change based on whether the user wants it to.
@@ -362,9 +404,12 @@ function init(): void {
   settingsDOM = document.getElementById("settings")!;
   mainPageDOM = document.getElementById("mainPage")!;
 
+  blink(); // Start blinking
+
   saveSettings(currentSettings);
   if (isSettingsCustom()) {
     writeSettings(currentSettings);
+    applySettings(currentSettings);
   }
 
   if (window.screen.width <= 600) {

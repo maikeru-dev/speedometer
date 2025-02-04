@@ -57,12 +57,15 @@ body {
   filter: invert(1);
   height: 10vh;
   width: 10vh;
+  right: 0;
+  top: 0;
   transition: transform 0.3s ease;
+  position: fixed;
 }
 
 .top-heading {
   font-size: 4vh;
-  margin: 0 0 0 0;
+  margin: 30px 0 0 20px;
   align-items: center;
   justify-content: center;
 }
@@ -72,8 +75,6 @@ body {
 .settings {
   font-size: 2vh;
   display: none;
-}
-.setting-desc {
 }
 
 .radio-buttons {

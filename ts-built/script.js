@@ -19,6 +19,7 @@ let speedLimitSignDOM;
 let mainPageDOM;
 let settingsDOM;
 let lastKnownLocalUnit = "--";
+let blinkList = [];
 const defaultSettings = Object.freeze({
     units: "setting_MPH",
     bgColour: "#000000",
@@ -29,44 +30,28 @@ const defaultSettings = Object.freeze({
     slLocation: "rightSpeedSign",
 });
 let currentSettings = fastClone(defaultSettings);
-function handleGPSInfo(position) {
-    // Handle GPS location updates here
-    console.log(`handleGPSInfo called ${position.coords.speed}`);
-    let speed = position.coords.speed; // null check is present below
-    let streetPosition;
-    fetchSpeedLimitAPI(position)
-        .then((resp) => {
-        resp.json().then((json) => {
-            streetPosition = json;
-            console.log(json);
-            updateStreetInformation(streetPosition);
-        }, (error) => {
-            //  FIXME: Improve error handling
-            console.log("Something went wrong downloading this", error);
-        });
-    })
-        .catch((error) => {
-        console.log("Something went wrong downloading this", error);
-    });
-    if (speed == null) {
-        // Blink animation
-        speedDOM.textContent = "--";
-    }
-    else {
-        // respect settings
-        switch (currentSettings.units) {
-            case "setting_KMH":
-                speedDOM.textContent = Math.round(speed * 3.6).toString();
-                break;
-            case "setting_MPH":
-                speedDOM.textContent = Math.round(speed * 2.23694).toString();
-                break;
-            case "setting_LOC":
-                // Blink last known unit
-                // When found, it will unblink
-                break;
-        }
-    }
+function blink() {
+    // This is a synchronized blink animation
+    const timeout = 1000;
+    setInterval(() => {
+        setTimeout(() => {
+            blinkList.forEach((element) => {
+                element.style.visibility = "hidden";
+            });
+        }, timeout / 2);
+        setTimeout(() => {
+            blinkList.forEach((element) => {
+                element.style.visibility = "visible";
+            });
+        }, timeout);
+    }, timeout);
+    return;
+}
+function registerBlink(key) {
+    blinkList.push(key);
+}
+function unregisterBlink(key) {
+    blinkList.splice(blinkList.indexOf(key), 1);
 }
 function isSettingsCustom() {
     return localStorage.getItem("customSettings") != null;
@@ -135,7 +120,12 @@ function openSettings() {
     }
     // Update styles
     hamburgerDOM.style.display = "none";
+    hamburgerDOM.style.pointerEvents = "none";
     closeBurgerDOM.style.display = "block";
+    setTimeout(() => {
+        // This is a subtle fix for buttons positioned on top of each other.
+        closeBurgerDOM.style.pointerEvents = "auto";
+    }, 20);
     mainPageDOM.style.display = "none";
     settingsDOM.style.display = "flex";
 }
@@ -146,8 +136,13 @@ function closeSettings() {
         localStorage.setItem("customSettings", "somevalue");
         applySettings(currentSettings);
     }
-    hamburgerDOM.style.display = "block";
     closeBurgerDOM.style.display = "none";
+    closeBurgerDOM.style.pointerEvents = "none";
+    hamburgerDOM.style.display = "block";
+    setTimeout(() => {
+        // This is a subtle fix for buttons positioned on top of each other.
+        hamburgerDOM.style.pointerEvents = "auto";
+    }, 20);
     mainPageDOM.style.display = "block";
     settingsDOM.style.display = "none";
 }
@@ -181,7 +176,10 @@ function applySettings(settings) {
         case "setting_LOC":
             // Blink last known unit
             // When found, it will unblink
-            unitDOM.textContent = lastKnownLocalUnit;
+            if (lastKnownLocalUnit == "--") {
+                unitDOM.textContent = lastKnownLocalUnit;
+                registerBlink(unitDOM);
+            }
             break;
     }
     // https://stackoverflow.com/questions/17090571/is-there-a-way-to-set-background-image-as-a-base64-encoded-image
@@ -218,6 +216,46 @@ function isSettingsVisible() {
     console.error("Found possibly hamburgerStyle == closeBurgerStyle");
     return null; // Something weird happened.
 }
+function handleGPSInfo(position) {
+    // Handle GPS location updates here
+    console.log(`handleGPSInfo called ${position.coords.speed}`);
+    let speed = position.coords.speed; // null check is present below
+    let streetPosition;
+    fetchSpeedLimitAPI(position)
+        .then((resp) => {
+        resp.json().then((json) => {
+            streetPosition = json;
+            console.log(json);
+            updateStreetInformation(streetPosition);
+        }, (error) => {
+            //  FIXME: Improve error handling
+            console.log("Something went wrong downloading this", error);
+        });
+    })
+        .catch((error) => {
+        console.log("Something went wrong downloading this", error);
+    });
+    if (speed == null) {
+        // Blink animation
+        speedDOM.textContent = "--";
+        registerBlink(speedDOM);
+    }
+    else {
+        unregisterBlink(speedDOM);
+        // respect settings
+        switch (currentSettings.units) {
+            case "setting_KMH":
+                speedDOM.textContent = Math.round(speed * 3.6).toString();
+                break;
+            case "setting_MPH":
+                speedDOM.textContent = Math.round(speed * 2.23694).toString();
+                break;
+            case "setting_LOC":
+                // This case is handled by updateStreetInformation();
+                break;
+        }
+    }
+}
 function updateStreetInformation(streetInfo) {
     console.log("Street info: ", streetInfo);
     if (streetInfo.status != "OK") {
@@ -226,6 +264,9 @@ function updateStreetInformation(streetInfo) {
         console.log("Street information is empty.");
         return;
     }
+    unitDOM.textContent = streetInfo.localSpeedLimit.toString();
+    speedDOM.textContent = streetInfo.siSpeed.toString();
+    unregisterBlink(unitDOM);
     streetDOM.textContent = streetInfo.name;
     speedLimitSignDOM.style.opacity = "100";
     //  FIXME: This needs to respect settings, this should change based on whether the user wants it to.
@@ -290,9 +331,11 @@ function init() {
     hamburgerDOM = document.getElementById("openHamburger");
     settingsDOM = document.getElementById("settings");
     mainPageDOM = document.getElementById("mainPage");
+    blink(); // Start blinking
     saveSettings(currentSettings);
     if (isSettingsCustom()) {
         writeSettings(currentSettings);
+        applySettings(currentSettings);
     }
     if (window.screen.width <= 600) {
         // Mobile only

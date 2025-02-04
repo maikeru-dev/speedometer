@@ -1,9 +1,16 @@
 .root {
-  background-color: rgba(0, 0, 0, 255);
   color: rgba(255, 255, 255, 255);
   font-family: monospace;
 }
-
+body {
+  background-color: rgba(0, 0, 0, 255);
+}
+.settings {
+  background-color: rgba(0, 0, 0, 255);
+}
+.settings-list {
+  padding: 0;
+}
 .orbitron-low {
   font-family: "Orbitron", serif;
   font-optical-sizing: auto;
@@ -95,7 +102,7 @@
   overflow-wrap: break-word;
 }
 #speedLimitSign {
-  opacity: 1;
+  opacity: 0;
   float: right;
 }
 #header {

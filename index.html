@@ -79,7 +79,7 @@
       </svg>
     </div>
     <div id="settings" class="container settings">
-      <ul class="setting-list">
+      <ul class="settings-list">
         <li class="container col settings-item">
           <div class="row">
             <p class="setting-desc">Set the speed units</p>
@@ -87,7 +87,7 @@
           <div class="row">
             <label for="KMH">Always KMH</label>
             <input
-              class="radio-buttons settingsUnits"
+              class="radio-buttons settingUnits"
               type="radio"
               name="units"
               id="setting_KMH"
@@ -97,7 +97,7 @@
           <div class="row">
             <label for="MPH">Always MPH</label>
             <input
-              class="radio-buttons settingsUnits"
+              class="radio-buttons settingUnits"
               type="radio"
               name="units"
               id="setting_MPH"
@@ -108,7 +108,7 @@
           <div class="row">
             <label for="LOC">Local Units</label>
             <input
-              class="radio-buttons settingsUnits"
+              class="radio-buttons settingUnits"
               type="radio"
               name="units"
               id="setting_LOC"
@@ -124,6 +124,7 @@
           <div class="row">
             <label for="bgColour">Background colour</label>
             <input
+              id="bgColour"
               class="text-input settingColours"
               type="text"
               name="bgColour"
@@ -132,6 +133,7 @@
           <div class="row">
             <label for="speedColour">Speedometer colour</label>
             <input
+              id="speedColour"
               class="text-input settingColours"
               type="text"
               name="speedColour"
@@ -140,6 +142,7 @@
           <div class="row">
             <label for="unitColour">Unit Colour</label>
             <input
+              id="unitColour"
               class="text-input settingColours"
               type="text"
               name="unitColour"
@@ -148,6 +151,7 @@
           <div class="row">
             <label for="streetColour">Street Colour</label>
             <input
+              id="streetColour"
               class="text-input settingColours"
               type="text"
               name="streetColour"
@@ -166,7 +170,8 @@
           <div class="row">
             <label for="leftSpeedSign">left</label>
             <input
-              class="settingsSignLocation radio-buttons"
+              id="leftSpeedSign"
+              class="settingSignLocation radio-buttons"
               type="radio"
               name="speedSignLocation"
             />
@@ -174,7 +179,8 @@
           <div class="row">
             <label for="rightSpeedSign">right</label>
             <input
-              class="settingsSignLocation radio-buttons"
+              id="rightSpeedSign"
+              class="settingSignLocation radio-buttons"
               type="radio"
               name="speedSignLocation"
               checked

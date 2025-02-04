@@ -155,6 +155,7 @@ function resetSettings() {
     currentSettings = fastClone(defaultSettings);
     localStorage.clear();
     applySettings(currentSettings);
+    clearBGImage();
 }
 function clearBGImage() {
     localStorage.removeItem("bgImage");
@@ -289,8 +290,8 @@ function init() {
     hamburgerDOM = document.getElementById("openHamburger");
     settingsDOM = document.getElementById("settings");
     mainPageDOM = document.getElementById("mainPage");
+    saveSettings(currentSettings);
     if (isSettingsCustom()) {
-        applySettings(currentSettings);
         writeSettings(currentSettings);
     }
     if (window.screen.width <= 600) {

@@ -180,7 +180,6 @@ function fastClone(a: any) {
 
 function openSettings(): void {
   // Load settings
-
   if (!isSettingsCustom()) {
     // write to DOM
     writeSettings(currentSettings);
@@ -212,6 +211,7 @@ function resetSettings() {
   currentSettings = fastClone(defaultSettings);
   localStorage.clear();
   applySettings(currentSettings);
+  clearBGImage();
 }
 
 function clearBGImage() {
@@ -246,6 +246,7 @@ function applySettings(settings: Settings): void {
   // https://stackoverflow.com/questions/17090571/is-there-a-way-to-set-background-image-as-a-base64-encoded-image
   if (settings.bgImage) {
     let url = localStorage.getItem(settings.bgImage!)!;
+
     document.body.style.backgroundImage = `url(${url})`;
   }
 
@@ -361,8 +362,8 @@ function init(): void {
   settingsDOM = document.getElementById("settings")!;
   mainPageDOM = document.getElementById("mainPage")!;
 
+  saveSettings(currentSettings);
   if (isSettingsCustom()) {
-    applySettings(currentSettings);
     writeSettings(currentSettings);
   }
 

@@ -80,11 +80,11 @@
     </div>
     <div id="settings" class="container settings">
       <ul class="settings-list">
-        <li class="container col settings-item">
+        <li class="container col">
           <div class="row">
             <p class="setting-desc">Set the speed units</p>
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="KMH">Always KMH</label>
             <input
               class="radio-buttons settingUnits"
@@ -94,7 +94,7 @@
               value="KMH"
             />
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="MPH">Always MPH</label>
             <input
               class="radio-buttons settingUnits"
@@ -105,7 +105,7 @@
             />
           </div>
 
-          <div class="row">
+          <div class="row settings-item">
             <label for="LOC">Local Units</label>
             <input
               class="radio-buttons settingUnits"
@@ -117,11 +117,11 @@
             />
           </div>
         </li>
-        <li class="container col settings-item">
+        <li class="container col">
           <div class="row">
             <p class="setting-desc">Set the colours</p>
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="bgColour">Background colour</label>
             <input
               id="bgColour"
@@ -130,7 +130,7 @@
               name="bgColour"
             />
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="speedColour">Speedometer colour</label>
             <input
               id="speedColour"
@@ -139,7 +139,7 @@
               name="speedColour"
             />
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="unitColour">Unit Colour</label>
             <input
               id="unitColour"
@@ -148,7 +148,7 @@
               name="unitColour"
             />
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="streetColour">Street Colour</label>
             <input
               id="streetColour"
@@ -158,22 +158,19 @@
             />
           </div>
         </li>
-        <li class="container col settings-item">
+        <li class="container col">
           <p class="setting-desc">Set the background to an image</p>
-          <input
-            class="custom-buttons"
-            id="fileUpload"
-            type="file"
-            name="bgImage"
-          />
-          <button class="custom-buttons" onclick="clearBGImage()">Clear</button>
+          <input class="" id="fileUpload" type="file" name="bgImage" />
+          <button class="col custom-buttons" onclick="clearBGImage()">
+            Clear
+          </button>
         </li>
-        <li class="container col settings-item">
+        <li class="container col" style="margin-bottom: 2rem">
           <div class="row">
             <p class="setting-desc">Set speed limit location</p>
           </div>
 
-          <div class="row">
+          <div class="row settings-item">
             <label for="leftSpeedSign">left</label>
             <input
               id="leftSpeedSign"
@@ -182,7 +179,7 @@
               name="speedSignLocation"
             />
           </div>
-          <div class="row">
+          <div class="row settings-item">
             <label for="rightSpeedSign">right</label>
             <input
               id="rightSpeedSign"
@@ -193,8 +190,11 @@
             />
           </div>
         </li>
-        <div class="container custom-buttons">
-          <button onclick="resetSettings()">Reset settings</button>
+        <div class="container col settings-item">
+          <p class="row setting-desc">Reset all settings</p>
+          <button class="row custom-buttons" onclick="resetSettings()">
+            Reset settings
+          </button>
         </div>
       </ul>
     </div>

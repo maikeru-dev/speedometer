@@ -18,8 +18,9 @@ let speedLimitTextDOM;
 let speedLimitSignDOM;
 let mainPageDOM;
 let settingsDOM;
-let lastKnownLocalUnit = "--";
+let lastKnownLocalUnit = null;
 let blinkList = [];
+let blinkId = blink();
 const defaultSettings = Object.freeze({
     units: "setting_MPH",
     bgColour: "#000000",
@@ -33,7 +34,7 @@ let currentSettings = fastClone(defaultSettings);
 function blink() {
     // This is a synchronized blink animation
     const timeout = 1000;
-    setInterval(() => {
+    return setInterval(() => {
         setTimeout(() => {
             blinkList.forEach((element) => {
                 element.style.visibility = "hidden";
@@ -45,13 +46,18 @@ function blink() {
             });
         }, timeout);
     }, timeout);
-    return;
 }
 function registerBlink(key) {
-    blinkList.push(key);
+    if (blinkList.indexOf(key) == -1) {
+        blinkList.push(key);
+    }
 }
 function unregisterBlink(key) {
-    blinkList.splice(blinkList.indexOf(key), 1);
+    let i = blinkList.indexOf(key);
+    if (i == -1)
+        return;
+    blinkList.splice(i, 1);
+    key.style.visibility = "visible";
 }
 function isSettingsCustom() {
     return localStorage.getItem("customSettings") != null;
@@ -131,10 +137,12 @@ function openSettings() {
 }
 function closeSettings() {
     // save from DOM
-    saveSettings(currentSettings);
-    if (!settingsDeepEqual(currentSettings, defaultSettings)) {
+    let newSettings = {};
+    saveSettings(newSettings);
+    if (!settingsDeepEqual(currentSettings, newSettings)) {
         localStorage.setItem("customSettings", "somevalue");
-        applySettings(currentSettings);
+        currentSettings = newSettings;
+        applySettings(newSettings);
     }
     closeBurgerDOM.style.display = "none";
     closeBurgerDOM.style.pointerEvents = "none";
@@ -149,8 +157,9 @@ function closeSettings() {
 function resetSettings() {
     currentSettings = fastClone(defaultSettings);
     localStorage.clear();
-    applySettings(currentSettings);
+    applySettings(defaultSettings);
     clearBGImage();
+    writeSettings(defaultSettings);
 }
 function clearBGImage() {
     localStorage.removeItem("bgImage");
@@ -160,13 +169,13 @@ function clearBGImage() {
 }
 // Pure styling, functional aspects found where they are needed.
 function applySettings(settings) {
-    console.log(settings);
     streetDOM.style.color = settings.streetColour;
     speedDOM.style.color = settings.speedColour;
     speedLimitSignDOM.style.float =
         settings.slLocation == "rightSpeedSign" ? "right" : "left";
     unitDOM.style.color = settings.unitColour;
-    switch (currentSettings.units) {
+    unregisterBlink(unitDOM);
+    switch (settings.units) {
         case "setting_KMH":
             unitDOM.textContent = "KMH";
             break;
@@ -176,8 +185,8 @@ function applySettings(settings) {
         case "setting_LOC":
             // Blink last known unit
             // When found, it will unblink
-            if (lastKnownLocalUnit == "--") {
-                unitDOM.textContent = lastKnownLocalUnit;
+            if (lastKnownLocalUnit == null) {
+                unitDOM.textContent = "M/S";
                 registerBlink(unitDOM);
             }
             break;
@@ -251,7 +260,10 @@ function handleGPSInfo(position) {
                 speedDOM.textContent = Math.round(speed * 2.23694).toString();
                 break;
             case "setting_LOC":
-                // This case is handled by updateStreetInformation();
+                // This case is usually handled by updateStreetInformation();
+                if (lastKnownLocalUnit == null) {
+                    speedDOM.textContent = Math.round(speed).toString();
+                }
                 break;
         }
     }
@@ -331,12 +343,11 @@ function init() {
     hamburgerDOM = document.getElementById("openHamburger");
     settingsDOM = document.getElementById("settings");
     mainPageDOM = document.getElementById("mainPage");
-    blink(); // Start blinking
     saveSettings(currentSettings);
     if (isSettingsCustom()) {
         writeSettings(currentSettings);
-        applySettings(currentSettings);
     }
+    applySettings(currentSettings);
     if (window.screen.width <= 600) {
         // Mobile only
         openSettings();

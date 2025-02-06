@@ -15,6 +15,7 @@ let lastKnownLocalUnit: Unit | null = null;
 let blinkList: Array<HTMLElement> = [];
 let blinkId = startBlinkEngine();
 let previousSpeed: Speed | null = null;
+let lastKnownSpeedLimit: Speed | null = null;
 let timeoutId = 0;
 
 enum Unit {
@@ -57,6 +58,14 @@ class Speed {
     } else {
       process(unit);
     }
+  }
+
+  difference(speed: Speed) {
+    if (speed.unit != this.unit) {
+      speed = speed.convertTo(this.unit!);
+    }
+
+    return this.speed - speed.speed;
   }
   static getApiUnit(info: StreetPosition): Unit {
     let unit = null;
@@ -432,6 +441,20 @@ function handleGPSInfo(position: GeolocationPosition): void {
     timeoutId = 0;
   }
 
+  if (lastKnownSpeedLimit != null) {
+    //NOTE: difference is: this.speed - a.speed
+    let difference = speed.difference(lastKnownSpeedLimit);
+    if (difference >= 0) {
+      speedDOM.style.color = "red";
+    } else if (difference >= -5) {
+      speedDOM.style.color = "orange";
+    } else {
+      speedDOM.style.color = currentSettings.speedColour;
+    }
+  } else {
+    speedDOM.style.color = currentSettings.speedColour;
+  }
+
   if (previousSpeed != null) {
     previousSpeed.generateAccelerate(speed);
   } else {
@@ -446,6 +469,7 @@ function updateStreetInformation(streetInfo: StreetPosition): void {
     // ATM, do nothing
     speedLimitSignDOM.style.opacity = "0";
     streetDOM.textContent = "--";
+    lastKnownSpeedLimit = null;
     console.log("Street information is empty.");
     return;
   }
@@ -456,6 +480,7 @@ function updateStreetInformation(streetInfo: StreetPosition): void {
   }
 
   lastKnownLocalUnit = Speed.getApiUnit(streetInfo);
+  lastKnownSpeedLimit = Speed.convertCall(streetInfo);
   applyUnit(currentSettings);
 
   let speed = new Speed(currentSettings.units, streetInfo.siSpeed);

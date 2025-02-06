@@ -339,7 +339,7 @@ function handleGPSInfo(position) {
                     speedDOM.textContent = "--";
                     previousSpeed = null;
                 }, 5000);
-            }, 5000);
+            }, 7000);
         }
         return;
     }
@@ -349,11 +349,9 @@ function handleGPSInfo(position) {
         timeoutId = 0;
     }
     if (previousSpeed != null) {
-        console.log("hello?");
         previousSpeed.generateAccelerate(speed);
     }
     else {
-        console.log("setting lol");
         speedDOM.textContent = speed.getSpeed().toString();
     }
     previousSpeed = speed;
@@ -363,6 +361,7 @@ function updateStreetInformation(streetInfo) {
     if (streetInfo.status != "OK") {
         // ATM, do nothing
         speedLimitSignDOM.style.opacity = "0";
+        streetDOM.textContent = "--";
         console.log("Street information is empty.");
         return;
     }

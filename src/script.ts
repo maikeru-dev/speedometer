@@ -423,7 +423,7 @@ function handleGPSInfo(position: GeolocationPosition): void {
           speedDOM.textContent = "--";
           previousSpeed = null;
         }, 5000);
-      }, 5000);
+      }, 7000);
     }
     return;
   } else {
@@ -433,10 +433,8 @@ function handleGPSInfo(position: GeolocationPosition): void {
   }
 
   if (previousSpeed != null) {
-    console.log("hello?");
     previousSpeed.generateAccelerate(speed);
   } else {
-    console.log("setting lol");
     speedDOM.textContent = speed.getSpeed().toString();
   }
 
@@ -447,6 +445,7 @@ function updateStreetInformation(streetInfo: StreetPosition): void {
   if (streetInfo.status != "OK") {
     // ATM, do nothing
     speedLimitSignDOM.style.opacity = "0";
+    streetDOM.textContent = "--";
     console.log("Street information is empty.");
     return;
   }

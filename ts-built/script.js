@@ -22,7 +22,6 @@ let lastKnownLocalUnit = null;
 let blinkList = [];
 let blinkId = startBlinkEngine();
 let previousSpeed = null;
-let accelerationLock = false;
 var Unit;
 (function (Unit) {
     Unit["kmh"] = "setting_KMH";
@@ -57,11 +56,27 @@ class Speed {
             process(unit);
         }
     }
+    static getApiUnit(info) {
+        let unit = null;
+        if (info.localSpeedUnit == "km/h") {
+            unit = Unit.kmh;
+        }
+        else {
+            unit = Unit.mph;
+        }
+        return unit;
+    }
+    static convertCall(info) {
+        return new Speed(this.getApiUnit(info), info.siSpeed);
+    }
     generateAccelerate(accelTo) {
         return accelerate(this.speed, accelTo.speed);
     }
     getSpeed() {
         return this.speed;
+    }
+    getUnit() {
+        return this.unit;
     }
     convertTo(unit) {
         return new Speed(unit, this.rawSpeed);
@@ -93,7 +108,6 @@ function accelerate(previousSpeed, newSpeed) {
         return 1 + ((x - 1) / (stepCount - 1)) * 16; // Map x to a range of 1 to 10
     };
     let initStep = step(lock(1)) * 10;
-    console.log(stepCount, step);
     for (let i = 1; i <= stepCount; i++) {
         setTimeout(() => {
             if (previousSpeed < newSpeed) {
@@ -243,6 +257,30 @@ function clearBGImage() {
     document.getElementById("fileUpload").value = "";
     currentSettings.bgImage = null;
 }
+function applyUnit(settings) {
+    let process = (unit) => {
+        switch (unit) {
+            case "setting_KMH":
+                unitDOM.textContent = "KMH";
+                break;
+            case "setting_MPH":
+                unitDOM.textContent = "MPH";
+                break;
+        }
+    };
+    if (settings.units == Unit.loc) {
+        if (lastKnownLocalUnit == null) {
+            unitDOM.textContent = "M/S";
+            registerBlink(unitDOM);
+        }
+        else {
+            process(lastKnownLocalUnit);
+        }
+    }
+    else {
+        process(settings.units);
+    }
+}
 // Pure styling, functional aspects found where they are needed.
 function applySettings(settings) {
     streetDOM.style.color = settings.streetColour;
@@ -251,22 +289,7 @@ function applySettings(settings) {
         settings.slLocation == "rightSpeedSign" ? "right" : "left";
     unitDOM.style.color = settings.unitColour;
     unregisterBlink(unitDOM);
-    switch (settings.units) {
-        case "setting_KMH":
-            unitDOM.textContent = "KMH";
-            break;
-        case "setting_MPH":
-            unitDOM.textContent = "MPH";
-            break;
-        case "setting_LOC":
-            // Blink last known unit
-            // When found, it will unblink
-            if (lastKnownLocalUnit == null) {
-                unitDOM.textContent = "M/S";
-                registerBlink(unitDOM);
-            }
-            break;
-    }
+    applyUnit(settings);
     // https://stackoverflow.com/questions/17090571/is-there-a-way-to-set-background-image-as-a-base64-encoded-image
     if (settings.bgImage) {
         let url = localStorage.getItem(settings.bgImage);
@@ -335,14 +358,16 @@ function updateStreetInformation(streetInfo) {
         console.log("Street information is empty.");
         return;
     }
-    unitDOM.textContent = streetInfo.localSpeedLimit.toString();
-    let previousSpeed = parseInt(speedDOM.textContent == "--" ? "0" : speedDOM.textContent);
-    accelerate(previousSpeed, streetInfo.siSpeed);
-    unregisterBlink(unitDOM);
+    if (lastKnownLocalUnit == null) {
+        // When missing, it is blinking
+        unregisterBlink(unitDOM);
+    }
+    lastKnownLocalUnit = Speed.getApiUnit(streetInfo);
+    applyUnit(currentSettings);
+    let speed = new Speed(currentSettings.units, streetInfo.siSpeed);
+    speedLimitTextDOM.textContent = speed.getSpeed().toString();
     streetDOM.textContent = streetInfo.name;
     speedLimitSignDOM.style.opacity = "100";
-    //  FIXME: This needs to respect settings, this should change based on whether the user wants it to.
-    speedLimitTextDOM.textContent = streetInfo.localSpeedLimit.toString();
 }
 // https://developer.mozilla.org/en-US/docs/Web/API/PermissionStatus/change_event
 function processGeolocationPermission() {

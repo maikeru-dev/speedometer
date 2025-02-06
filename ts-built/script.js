@@ -329,7 +329,7 @@ function handleGPSInfo(position) {
         console.log("Something went wrong downloading this", error);
     });
     if (position.coords.speed == null) {
-        if (timeoutId == 0) {
+        if (timeoutId == 0 && speedDOM.textContent != "--") {
             timeoutId = setTimeout(() => {
                 registerBlink(speedDOM);
                 timeoutId = setTimeout(() => {

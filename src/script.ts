@@ -11,12 +11,69 @@ let speedLimitTextDOM: HTMLElement;
 let speedLimitSignDOM: HTMLElement;
 let mainPageDOM: HTMLElement;
 let settingsDOM: HTMLElement;
-let lastKnownLocalUnit: string | null = null;
+let lastKnownLocalUnit: Unit | null = null;
 let blinkList: Array<HTMLElement> = [];
-let blinkId = blink();
+let blinkId = startBlinkEngine();
+let previousSpeed: Speed | null = null;
+let accelerationLock = false;
+
+enum Unit {
+  kmh = "setting_KMH",
+  mph = "setting_MPH",
+  loc = "setting_LOC",
+}
+
+class Speed {
+  unit: Unit | null;
+  speed: number;
+  readonly rawSpeed: number;
+  static readonly identity: Speed = new Speed(null, 0);
+
+  constructor(unit: Unit | null, speed: number) {
+    this.rawSpeed = speed;
+
+    // Typescript isn't smart enough to figure out that speed and unit are init once;
+    this.unit = null;
+    this.speed = 0;
+
+    let process = (unit: Unit | null) => {
+      switch (unit) {
+        case Unit.kmh:
+          this.speed = Math.round(3.6 * this.rawSpeed);
+          this.unit = Unit.kmh;
+          break;
+        case Unit.mph:
+          this.speed = Math.round(2.23694 * this.rawSpeed);
+          this.unit = Unit.mph;
+          break;
+        case null: // m/s
+          this.speed = Math.round(this.rawSpeed);
+          break;
+      }
+    };
+
+    if (Unit.loc == unit) {
+      process(lastKnownLocalUnit);
+    } else {
+      process(unit);
+    }
+  }
+
+  generateAccelerate(accelTo: Speed) {
+    return accelerate(this.speed, accelTo.speed);
+  }
+
+  getSpeed(): number {
+    return this.speed;
+  }
+
+  convertTo(unit: Unit): Speed {
+    return new Speed(unit, this.rawSpeed);
+  }
+}
 
 interface Settings {
-  units: string;
+  units: Unit;
   bgColour: string;
   speedColour: string;
   unitColour: string;
@@ -26,7 +83,7 @@ interface Settings {
 }
 
 const defaultSettings: Settings = Object.freeze({
-  units: "setting_MPH",
+  units: Unit.mph,
   bgColour: "#000000",
   speedColour: "#FFFFFF",
   unitColour: "#FFFFFF",
@@ -49,7 +106,44 @@ interface StreetPosition {
   lon: string;
   cached: boolean;
 }
-function blink() {
+
+function accelerate(previousSpeed: number, newSpeed: number) {
+  let stepCount;
+
+  if (previousSpeed == newSpeed) {
+    speedDOM.textContent = previousSpeed.toString();
+    return;
+  }
+
+  stepCount = Math.abs(previousSpeed - newSpeed);
+
+  let step = (x: number) => {
+    return Math.pow(x, 2); // Logarithmic function to slow down over time
+  };
+
+  // Adjust the lock function to map the steps to a range that slows down
+  let lock = (x: number) => {
+    return 1 + ((x - 1) / (stepCount - 1)) * 16; // Map x to a range of 1 to 10
+  };
+
+  let initStep = step(lock(1)) * 10;
+
+  console.log(stepCount, step);
+  for (let i = 1; i <= stepCount; i++) {
+    setTimeout(
+      () => {
+        if (previousSpeed < newSpeed) {
+          speedDOM.textContent = (previousSpeed + i).toString();
+        } else {
+          speedDOM.textContent = (previousSpeed - i).toString();
+        }
+      },
+      step(lock(i)) * 10 - initStep,
+    );
+  }
+}
+
+function startBlinkEngine() {
   // This is a synchronized blink animation
   const timeout = 1000;
   return setInterval(() => {
@@ -111,8 +205,11 @@ function saveSettings(settings: Settings): void {
     );
   }
 
+  settings.units =
+    // @ts-expect-error // This is stupid.
+    Unit[Object.keys(Unit).find((key) => key == unitSelected[0].value)];
+
   settings.slLocation = locationSelected[0].id;
-  settings.units = unitSelected[0].id;
   settings.bgColour = (
     document.getElementById("bgColour") as HTMLInputElement
   ).value;
@@ -290,7 +387,7 @@ function handleGPSInfo(position: GeolocationPosition): void {
   // Handle GPS location updates here
   console.log(`handleGPSInfo called ${position.coords.speed}`);
 
-  let speed: number = position.coords.speed!; // null check is present below
+  let speed: Speed = new Speed(currentSettings.units, position.coords.speed!);
   let streetPosition: StreetPosition;
 
   fetchSpeedLimitAPI(position)
@@ -298,7 +395,6 @@ function handleGPSInfo(position: GeolocationPosition): void {
       resp.json().then(
         (json) => {
           streetPosition = json as StreetPosition;
-          console.log(json);
           updateStreetInformation(streetPosition);
         },
         (error) => {
@@ -311,28 +407,13 @@ function handleGPSInfo(position: GeolocationPosition): void {
       console.log("Something went wrong downloading this", error);
     });
 
-  if (speed == null) {
-    // Blink animation
-    speedDOM.textContent = "--";
-    registerBlink(speedDOM);
+  if (previousSpeed != null) {
+    previousSpeed.generateAccelerate(speed);
   } else {
-    unregisterBlink(speedDOM);
-    // respect settings
-    switch (currentSettings.units) {
-      case "setting_KMH":
-        speedDOM.textContent = Math.round(speed * 3.6).toString();
-        break;
-      case "setting_MPH":
-        speedDOM.textContent = Math.round(speed * 2.23694).toString();
-        break;
-      case "setting_LOC":
-        // This case is usually handled by updateStreetInformation();
-        if (lastKnownLocalUnit == null) {
-          speedDOM.textContent = Math.round(speed).toString();
-        }
-        break;
-    }
+    Speed.identity.generateAccelerate(speed);
   }
+
+  previousSpeed = speed;
 }
 function updateStreetInformation(streetInfo: StreetPosition): void {
   console.log("Street info: ", streetInfo);
@@ -344,7 +425,10 @@ function updateStreetInformation(streetInfo: StreetPosition): void {
   }
 
   unitDOM.textContent = streetInfo.localSpeedLimit.toString();
-  speedDOM.textContent = streetInfo.siSpeed.toString();
+  let previousSpeed = parseInt(
+    speedDOM.textContent! == "--" ? "0" : speedDOM.textContent!,
+  );
+  accelerate(previousSpeed, streetInfo.siSpeed);
   unregisterBlink(unitDOM);
 
   streetDOM.textContent = streetInfo.name;

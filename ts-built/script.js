@@ -22,6 +22,7 @@ let lastKnownLocalUnit = null;
 let blinkList = [];
 let blinkId = startBlinkEngine();
 let previousSpeed = null;
+let timeoutId = 0;
 var Unit;
 (function (Unit) {
     Unit["kmh"] = "setting_KMH";
@@ -309,24 +310,9 @@ function settingsDeepEqual(a, b) {
     ];
     return keys.every((key) => a[key] === b[key]);
 }
-function isSettingsVisible() {
-    if (!(hamburgerDOM && closeBurgerDOM)) {
-        return null;
-    }
-    let hamburgerStyle = hamburgerDOM.style.display;
-    let closeBurgerStyle = closeBurgerDOM.style.display;
-    if (hamburgerStyle != "none" && closeBurgerStyle == "none") {
-        return false;
-    }
-    if (hamburgerStyle == "none" && closeBurgerStyle != "none") {
-        return true;
-    }
-    console.error("Found possibly hamburgerStyle == closeBurgerStyle");
-    return null; // Something weird happened.
-}
 function handleGPSInfo(position) {
     // Handle GPS location updates here
-    console.log(`handleGPSInfo called ${position.coords.speed}`);
+    console.log(`speed: ${position.coords.speed}`);
     let speed = new Speed(currentSettings.units, position.coords.speed);
     let streetPosition;
     fetchSpeedLimitAPI(position)
@@ -342,11 +328,33 @@ function handleGPSInfo(position) {
         .catch((error) => {
         console.log("Something went wrong downloading this", error);
     });
+    if (position.coords.speed == null) {
+        if (timeoutId == 0) {
+            timeoutId = setTimeout(() => {
+                registerBlink(speedDOM);
+                timeoutId = setTimeout(() => {
+                    unregisterBlink(speedDOM);
+                    if (timeoutId == 0)
+                        return;
+                    speedDOM.textContent = "--";
+                    previousSpeed = null;
+                }, 5000);
+            }, 5000);
+        }
+        return;
+    }
+    else {
+        clearTimeout(timeoutId);
+        unregisterBlink(speedDOM);
+        timeoutId = 0;
+    }
     if (previousSpeed != null) {
+        console.log("hello?");
         previousSpeed.generateAccelerate(speed);
     }
     else {
-        Speed.identity.generateAccelerate(speed);
+        console.log("setting lol");
+        speedDOM.textContent = speed.getSpeed().toString();
     }
     previousSpeed = speed;
 }
@@ -434,7 +442,7 @@ function init() {
     }
     applySettings(currentSettings);
     if (window.screen.width <= 600) {
-        // Mobile only
+        // Mobile portrait only
         openSettings();
     }
     processGeolocationPermission().then(() => {

@@ -15,6 +15,7 @@ let lastKnownLocalUnit: Unit | null = null;
 let blinkList: Array<HTMLElement> = [];
 let blinkId = startBlinkEngine();
 let previousSpeed: Speed | null = null;
+let timeoutId = 0;
 
 enum Unit {
   kmh = "setting_KMH",
@@ -388,28 +389,10 @@ function settingsDeepEqual(a: Settings, b: Settings): boolean {
 
   return keys.every((key) => a[key] === b[key]);
 }
-function isSettingsVisible(): boolean | null {
-  if (!(hamburgerDOM && closeBurgerDOM)) {
-    return null;
-  }
-  let hamburgerStyle = hamburgerDOM.style.display;
-  let closeBurgerStyle = closeBurgerDOM.style.display;
-
-  if (hamburgerStyle != "none" && closeBurgerStyle == "none") {
-    return false;
-  }
-  if (hamburgerStyle == "none" && closeBurgerStyle != "none") {
-    return true;
-  }
-
-  console.error("Found possibly hamburgerStyle == closeBurgerStyle");
-  return null; // Something weird happened.
-}
 
 function handleGPSInfo(position: GeolocationPosition): void {
   // Handle GPS location updates here
-  console.log(`handleGPSInfo called ${position.coords.speed}`);
-
+  console.log(`speed: ${position.coords.speed}`);
   let speed: Speed = new Speed(currentSettings.units, position.coords.speed!);
   let streetPosition: StreetPosition;
 
@@ -430,10 +413,31 @@ function handleGPSInfo(position: GeolocationPosition): void {
       console.log("Something went wrong downloading this", error);
     });
 
+  if (position.coords.speed == null) {
+    if (timeoutId == 0) {
+      timeoutId = setTimeout(() => {
+        registerBlink(speedDOM);
+        timeoutId = setTimeout(() => {
+          unregisterBlink(speedDOM);
+          if (timeoutId == 0) return;
+          speedDOM.textContent = "--";
+          previousSpeed = null;
+        }, 5000);
+      }, 5000);
+    }
+    return;
+  } else {
+    clearTimeout(timeoutId);
+    unregisterBlink(speedDOM);
+    timeoutId = 0;
+  }
+
   if (previousSpeed != null) {
+    console.log("hello?");
     previousSpeed.generateAccelerate(speed);
   } else {
-    Speed.identity.generateAccelerate(speed);
+    console.log("setting lol");
+    speedDOM.textContent = speed.getSpeed().toString();
   }
 
   previousSpeed = speed;
@@ -532,7 +536,7 @@ function init(): void {
   applySettings(currentSettings);
 
   if (window.screen.width <= 600) {
-    // Mobile only
+    // Mobile portrait only
     openSettings();
   }
 

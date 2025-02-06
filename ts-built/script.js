@@ -464,6 +464,9 @@ function init() {
     if (isSettingsCustom()) {
         writeSettings(currentSettings);
     }
+    else {
+        writeSettings(defaultSettings);
+    }
     applySettings(currentSettings);
     if (window.screen.width <= 600) {
         // Mobile portrait only

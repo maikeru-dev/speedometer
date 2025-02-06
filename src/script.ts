@@ -556,6 +556,8 @@ function init(): void {
   saveSettings(currentSettings);
   if (isSettingsCustom()) {
     writeSettings(currentSettings);
+  } else {
+    writeSettings(defaultSettings);
   }
   applySettings(currentSettings);
 

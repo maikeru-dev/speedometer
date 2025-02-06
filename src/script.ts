@@ -413,20 +413,18 @@ function handleGPSInfo(position: GeolocationPosition): void {
       console.log("Something went wrong downloading this", error);
     });
 
-  if (
-    position.coords.speed == null &&
-    previousSpeed != null &&
-    timeoutId == 0
-  ) {
-    timeoutId = setTimeout(() => {
-      registerBlink(speedDOM);
+  if (position.coords.speed == null) {
+    if (timeoutId == 0) {
       timeoutId = setTimeout(() => {
-        unregisterBlink(speedDOM);
-        if (timeoutId == 0) return;
-        speedDOM.textContent = "--";
-        previousSpeed = null;
+        registerBlink(speedDOM);
+        timeoutId = setTimeout(() => {
+          unregisterBlink(speedDOM);
+          if (timeoutId == 0) return;
+          speedDOM.textContent = "--";
+          previousSpeed = null;
+        }, 5000);
       }, 5000);
-    }, 5000);
+    }
     return;
   } else {
     clearTimeout(timeoutId);

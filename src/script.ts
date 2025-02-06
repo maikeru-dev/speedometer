@@ -16,6 +16,7 @@ let blinkList: Array<HTMLElement> = [];
 let blinkId = startBlinkEngine();
 let previousSpeed: Speed | null = null;
 let lastKnownSpeedLimit: Speed | null = null;
+let watchPositionId = 0;
 let timeoutId = 0;
 
 enum Unit {
@@ -540,6 +541,10 @@ async function fetchSpeedLimitAPI(
     mode: "cors",
   });
 }
+function silenceWatchPositionHandler() {
+  navigator.geolocation.clearWatch(watchPositionId);
+  return;
+}
 
 function init(): void {
   // Do any initialisation here
@@ -570,7 +575,7 @@ function init(): void {
     () => {
       // attach listener
       console.log("Got permissions!");
-      navigator.geolocation.watchPosition(
+      watchPositionId = navigator.geolocation.watchPosition(
         handleGPSInfo,
         (error: GeolocationPositionError) => {
           // WARN: spammy log

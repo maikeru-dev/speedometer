@@ -23,6 +23,7 @@ let blinkList = [];
 let blinkId = startBlinkEngine();
 let previousSpeed = null;
 let lastKnownSpeedLimit = null;
+let watchPositionId = 0;
 let timeoutId = 0;
 var Unit;
 (function (Unit) {
@@ -449,6 +450,10 @@ function fetchSpeedLimitAPI(position) {
         });
     });
 }
+function silenceWatchPositionHandler() {
+    navigator.geolocation.clearWatch(watchPositionId);
+    return;
+}
 function init() {
     // Do any initialisation here
     speedDOM = document.getElementById("speed");
@@ -475,7 +480,7 @@ function init() {
     processGeolocationPermission().then(() => {
         // attach listener
         console.log("Got permissions!");
-        navigator.geolocation.watchPosition(handleGPSInfo, (error) => {
+        watchPositionId = navigator.geolocation.watchPosition(handleGPSInfo, (error) => {
             // WARN: spammy log
             // console.log("Permission granted, but error on get! ", error);
         }, {

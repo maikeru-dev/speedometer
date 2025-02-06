@@ -1,0 +1,157 @@
+.root {
+  color: rgba(255, 255, 255, 255);
+  font-family: monospace;
+}
+body {
+  background-color: rgba(0, 0, 0, 255);
+}
+.settings {
+  background-color: rgba(0, 0, 0, 255);
+}
+.settings-item {
+  margin: 5px 0 5px 0 !important;
+}
+.settings-list {
+  padding: 0;
+}
+.orbitron-low {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.orbitron-high {
+  font-family: "Orbitron", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+
+.row {
+  margin: 0 0 0 0;
+}
+.col {
+  flex-direction: column;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  justify-items: center;
+  justify-content: center;
+  margin: 0 auto auto 0;
+}
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  margin: 0 0 2vh 0;
+}
+.hamburger {
+  filter: invert(1);
+  height: 10vh;
+  width: 10vh;
+  right: 0;
+  top: 0;
+  transition: transform 0.3s ease;
+  position: fixed;
+  cursor: pointer;
+}
+
+.top-heading {
+  font-size: 4vh;
+  margin: 30px 0 0 20px;
+  align-items: center;
+  justify-content: center;
+}
+.main-page {
+  display: block;
+}
+.settings {
+  font-size: 2vh;
+  display: none;
+}
+
+.radio-buttons {
+  position: block;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  accent-color: black;
+  background-color: white;
+  border-radius: 75%;
+}
+.text-input {
+  width: 60px;
+}
+.custom-buttons {
+  margin: 1rem;
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  background-color: #fff;
+  border: 2px solid #1a1a1a;
+  display: inline-block;
+  border-radius: 4px;
+  width: 100px;
+  height: 50px;
+  color: #000;
+  font-size: 1rem;
+  text-align: center;
+}
+.custom-buttons:hover {
+  color: #fff;
+  background-color: #1a1a1a;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 8px 15px;
+  transform: translateY(-2px);
+}
+
+.custom-buttons:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+#spacer {
+  flex-grow: 1;
+}
+
+#speed {
+  font-size: 20vh;
+}
+#unit {
+  font-size: 10vh;
+}
+
+#street {
+  font-size: 10vh;
+  overflow-wrap: break-word;
+}
+#speedLimitSign {
+  opacity: 0;
+  float: right;
+}
+#header {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 2vw 0 1vw 0;
+}
+
+#openHamburger {
+  transform: rotate(00deg);
+  display: block;
+}
+#closeBurger {
+  transform: rotate(0deg);
+  display: none;
+}
+
+@media screen and (max-width: 600px) {
+  #header {
+    display: none;
+  }
+}

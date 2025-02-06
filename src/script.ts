@@ -15,6 +15,7 @@ let lastKnownLocalUnit: Unit | null = null;
 let blinkList: Array<HTMLElement> = [];
 let blinkId = startBlinkEngine();
 let previousSpeed: Speed | null = null;
+let lastGeolocationPosition: GeolocationPosition | null = null;
 let lastKnownSpeedLimit: Speed | null = null;
 let watchPositionId = 0;
 let timeoutId = 0;
@@ -406,6 +407,8 @@ function handleGPSInfo(position: GeolocationPosition): void {
   let speed: Speed = new Speed(currentSettings.units, position.coords.speed!);
   let streetPosition: StreetPosition;
 
+  lastGeolocationPosition = position;
+
   fetchSpeedLimitAPI(position)
     .then((resp) => {
       resp.json().then(
@@ -540,6 +543,11 @@ async function fetchSpeedLimitAPI(
   return fetch(SPEEDLIMIT_API_URL + "?" + generatePositionString(position), {
     mode: "cors",
   });
+}
+function echoLastPosition(newSpeed: number) {
+  let newPosition = fastClone(lastGeolocationPosition);
+  newPosition.coords.speed = newSpeed;
+  handleGPSInfo(newPosition);
 }
 function silenceWatchPositionHandler() {
   navigator.geolocation.clearWatch(watchPositionId);

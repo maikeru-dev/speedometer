@@ -49,10 +49,13 @@ class Speed {
                     this.unit = Unit.mph;
                     break;
                 case null: // m/s
+                    console.log("unknown ", this.speed);
                     this.speed = Math.round(this.rawSpeed);
+                    this.unit = null;
                     break;
             }
         };
+        console.log(this.unit);
         if (Unit.loc == unit) {
             process(lastKnownLocalUnit);
         }
@@ -277,10 +280,21 @@ function applyUnit(settings) {
                 unitDOM.textContent = "MPH";
                 break;
         }
+        if (previousSpeed != null) {
+            const newSpeed = previousSpeed.convertTo(unit);
+            previousSpeed.generateAccelerate(newSpeed);
+            previousSpeed = newSpeed;
+        }
     };
+    // NOTE: this is overtly complex, why!
     if (settings.units == Unit.loc) {
         if (lastKnownLocalUnit == null) {
             unitDOM.textContent = "M/S";
+            if (previousSpeed != null) {
+                const newSpeed = previousSpeed.convertTo(Unit.loc);
+                previousSpeed.generateAccelerate(newSpeed);
+                previousSpeed = newSpeed;
+            }
             registerBlink(unitDOM);
         }
         else {

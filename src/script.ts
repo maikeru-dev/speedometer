@@ -50,14 +50,12 @@ class Speed {
           this.unit = Unit.mph;
           break;
         case null: // m/s
-          console.log("unknown ", this.speed);
           this.speed = Math.round(this.rawSpeed);
           this.unit = null;
           break;
       }
     };
 
-    console.log(this.unit);
     if (Unit.loc == unit) {
       process(lastKnownLocalUnit);
     } else {
@@ -289,22 +287,32 @@ function fastClone(a: any) {
   return JSON.parse(JSON.stringify(a));
 }
 
+function saveSettingsToLocalStorage(settings: Settings) {
+  let jsonObject = JSON.stringify(settings);
+
+  localStorage.setItem("settings", jsonObject);
+}
+
+function loadSettingsFromLocalStorage(): Settings | null {
+  let loadedSettings = localStorage.getItem("settings");
+
+  if (!loadedSettings) return null;
+
+  return JSON.parse(loadedSettings) as Settings;
+}
+
 function openSettings(): void {
   // Load settings
   if (!isSettingsCustom()) {
     // write to DOM
+    let newSettings = loadSettingsFromLocalStorage();
+    if (newSettings) currentSettings = newSettings;
     writeSettings(currentSettings);
   }
 
   // Update styles
   hamburgerDOM.style.display = "none";
-  hamburgerDOM.style.pointerEvents = "none";
   closeBurgerDOM.style.display = "block";
-
-  setTimeout(() => {
-    // This is a subtle fix for buttons positioned on top of each other.
-    closeBurgerDOM.style.pointerEvents = "auto";
-  }, 20);
 
   mainPageDOM.style.display = "none";
   settingsDOM.style.display = "flex";
@@ -316,16 +324,12 @@ function closeSettings(): void {
   if (!settingsDeepEqual(currentSettings, newSettings)) {
     localStorage.setItem("customSettings", "somevalue");
     currentSettings = newSettings;
+    saveSettingsToLocalStorage(currentSettings);
     applySettings(newSettings);
   }
 
   closeBurgerDOM.style.display = "none";
-  closeBurgerDOM.style.pointerEvents = "none";
   hamburgerDOM.style.display = "block";
-  setTimeout(() => {
-    // This is a subtle fix for buttons positioned on top of each other.
-    hamburgerDOM.style.pointerEvents = "auto";
-  }, 20);
 
   mainPageDOM.style.display = "block";
   settingsDOM.style.display = "none";
@@ -581,8 +585,8 @@ function init(): void {
   settingsDOM = document.getElementById("settings")!;
   mainPageDOM = document.getElementById("mainPage")!;
 
-  saveSettings(currentSettings);
   if (isSettingsCustom()) {
+    currentSettings = loadSettingsFromLocalStorage()!;
     writeSettings(currentSettings);
   } else {
     writeSettings(defaultSettings);

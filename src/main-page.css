@@ -64,7 +64,7 @@ body {
   cursor: pointer;
 }
 .street-container {
-  max-width: 40%;
+  max-width: 40rem;
 }
 .top-heading {
   font-size: 4vh;
@@ -129,7 +129,7 @@ body {
 }
 
 #street {
-  font-size: 8vw;
+  font-size: 2.5rem;
   text-align: center;
   overflow-wrap: break-word;
 }

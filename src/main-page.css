@@ -63,7 +63,9 @@ body {
   position: fixed;
   cursor: pointer;
 }
-
+.street-container {
+  max-width: 40%;
+}
 .top-heading {
   font-size: 4vh;
   margin: 30px 0 0 20px;
@@ -127,7 +129,8 @@ body {
 }
 
 #street {
-  font-size: 8vh;
+  font-size: 8vw;
+  text-align: center;
   overflow-wrap: break-word;
 }
 #speedLimitSign {

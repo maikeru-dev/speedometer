@@ -126,7 +126,12 @@ body {
   height: 50px;
   color: #000;
   font-size: 1rem;
+  cursor: pointer;
   text-align: center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
 }
 .custom-buttons:hover {
   color: #fff;

@@ -55,8 +55,8 @@ body {
 }
 .hamburger {
   filter: invert(1);
-  height: 10vh;
-  width: 10vh;
+  height: 5rem;
+  width: 5rem;
   right: 0;
   top: 0;
   transition: transform 0.3s ease;
@@ -76,7 +76,7 @@ body {
   display: block;
 }
 .settings {
-  font-size: 2vh;
+  font-size: 1rem;
   display: none;
 }
 

@@ -12,3 +12,9 @@
   Currently there is a bunch of icons which do not center nicely on at least iOS
   I need to edit these using GIMP to make them a bit more centered.
   Also, Android is untested. (Android Studio?)
+
+- Disable Zoom with touch app-wide
+
+- Fix speed limit sign
+
+-

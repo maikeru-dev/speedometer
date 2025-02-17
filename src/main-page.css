@@ -163,6 +163,9 @@ body {
 #speedLimitSign {
   opacity: 0;
   float: right;
+  margin: 2rem 1rem 0 1rem;
+  height: 25vh;
+  width: 25vh;
 }
 #header {
   position: absolute;

@@ -3,6 +3,8 @@
   font-family: monospace;
 }
 body {
+  position: fixed;
+  width: 100%;
   background-color: rgba(0, 0, 0, 255);
 }
 .settings {
@@ -131,6 +133,7 @@ body {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  user-select: none;
   outline: none;
 }
 .custom-buttons:hover {

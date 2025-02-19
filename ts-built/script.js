@@ -282,6 +282,10 @@ function applyUnit(settings) {
                 unitDOM.textContent = "MPH";
                 break;
         }
+        if (lastKnownSpeedLimit != null) {
+            lastKnownSpeedLimit = lastKnownSpeedLimit.convertTo(unit);
+            speedLimitTextDOM.textContent = lastKnownSpeedLimit.getSpeed().toString();
+        }
         if (previousSpeed != null) {
             const newSpeed = previousSpeed.convertTo(unit);
             previousSpeed.generateAccelerate(newSpeed);

@@ -311,6 +311,12 @@ function openSettings(): void {
   }
 
   // Update styles
+
+  hamburgerDOM.style.pointerEvents = "none";
+  setTimeout(() => {
+    // Prevent double tap
+    hamburgerDOM.style.pointerEvents = "auto";
+  }, 500);
   hamburgerDOM.style.display = "none";
   closeBurgerDOM.style.display = "block";
 
@@ -327,6 +333,12 @@ function closeSettings(): void {
     saveSettingsToLocalStorage(currentSettings);
     applySettings(newSettings);
   }
+
+  closeBurgerDOM.style.pointerEvents = "none";
+  setTimeout(() => {
+    // Prevent double tap
+    closeBurgerDOM.style.pointerEvents = "auto";
+  }, 500);
 
   closeBurgerDOM.style.display = "none";
   hamburgerDOM.style.display = "block";
